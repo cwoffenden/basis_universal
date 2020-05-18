@@ -2780,7 +2780,7 @@ static int main_internal(int argc, const char **argv)
 	return status ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int main(int argc, const char** argv)
+int main_orig(int argc, const char** argv)
 {
 #ifdef _DEBUG
 	printf("DEBUG\n");
@@ -2806,4 +2806,50 @@ int main(int argc, const char** argv)
 #endif
 
 	return status;
+}
+
+static int getMaxThreads() {
+	int threads = std::thread::hardware_concurrency();
+	if (threads < 1) {
+		threads = 1;
+	}
+	return threads;
+}
+
+int main(int /*argc*/, const char** /*argv*/) {
+	uint8_vec raw;
+	read_file_to_vec("juan-1024x1024.rgba.raw", raw);
+
+	basis_compressor_params params;
+	basis_compressor comp;
+
+	job_pool pool(getMaxThreads());
+	params.m_pJob_pool = &pool;
+	params.m_quality_level = 128;
+
+	params.m_source_images.resize(1);
+	params.m_source_images.back().init(reinterpret_cast<uint8_t*>(raw.data()), 1024, 1024, 4); // 3 will drop alpha
+	comp.init(params);
+
+	if (comp.read_source_images()) {
+		if (comp.validate_texture_type_constraints()) {
+			if (comp.extract_source_blocks()) {
+				if (params.m_uastc) {
+
+				} else {
+					if (comp.process_frontend()) {
+						if (comp.extract_frontend_texture_data()) {
+							const gpu_image& img = comp.m_best_etc1s_images[(comp.m_frontend_output_textures.size() > 1) ? 1 : 0]; // m_frontend_output_textures
+							const uint64_t* data = img.get_ptr();
+
+							write_data_to_file("etc1s-dump.raw", data, img.get_size_in_bytes());
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	return 0;
 }

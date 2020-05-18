@@ -434,10 +434,11 @@ namespace basisu
 
 		basisu_frontend m_frontend;
 		pixel_block_vec m_source_blocks;
-
+	public:
 		std::vector<gpu_image> m_frontend_output_textures;
 
 		std::vector<gpu_image> m_best_etc1s_images;
+	private:
 		std::vector<image> m_best_etc1s_images_unpacked;
 
 		basisu_backend m_backend;
@@ -455,7 +456,7 @@ namespace basisu
 		basisu_backend_output m_uastc_backend_output;
 
 		bool m_any_source_image_has_alpha;
-
+	public:
 		bool read_source_images();
 		bool extract_source_blocks();
 		bool process_frontend();
