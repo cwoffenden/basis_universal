@@ -10058,7 +10058,7 @@ namespace basist
 #if !BASISD_SUPPORT_DXT1
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: DXT1 unsupported\n");
 				return false;
-#endif
+#else
 				uint32_t slice_index_to_decode = slice_index;
 				// If the caller wants us to transcode the mip level's alpha data, then use the next slice.
 				if ((basis_file_has_alpha_slices) && (transcode_alpha_data_to_opaque_formats))
@@ -10070,13 +10070,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to BC1 failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFBC4_R:
 			{
 #if !BASISD_SUPPORT_DXT5A
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: DXT5A unsupported\n");
 				return false;
-#endif
+#else
 				uint32_t slice_index_to_decode = slice_index;
 				// If the caller wants us to transcode the mip level's alpha data, then use the next slice.
 				if ((basis_file_has_alpha_slices) && (transcode_alpha_data_to_opaque_formats))
@@ -10088,13 +10089,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to BC4 failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFPVRTC1_4_RGB:
 			{
 #if !BASISD_SUPPORT_PVRTC1
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: PVRTC1 unsupported\n");
 				return false;
-#endif
+#else
 				uint32_t slice_index_to_decode = slice_index;
 				// If the caller wants us to transcode the mip level's alpha data, then use the next slice.
 				if ((basis_file_has_alpha_slices) && (transcode_alpha_data_to_opaque_formats))
@@ -10107,13 +10109,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to PVRTC1 4 RGB failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFPVRTC1_4_RGBA:
 			{
 #if !BASISD_SUPPORT_PVRTC1
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: PVRTC1 unsupported\n");
 				return false;
-#endif
+#else
 				assert(basis_file_has_alpha_slices);
 
 				// Temp buffer to hold alpha block endpoint/selector indices
@@ -10136,6 +10139,7 @@ namespace basist
 				}
 
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFBC7_RGBA:
 			case transcoder_texture_format::cTFBC7_ALT:
@@ -10169,7 +10173,7 @@ namespace basist
 #if !BASISD_SUPPORT_ETC2_EAC_A8
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: ETC2 EAC A8 unsupported\n");
 				return false;
-#endif
+#else
 				assert(bytes_per_block_or_pixel == 16);
 
 				if (basis_file_has_alpha_slices)
@@ -10197,17 +10201,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to ETC2 A failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFBC3_RGBA:
 			{
-#if !BASISD_SUPPORT_DXT1
-            BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: DXT1 unsupported\n");
+#if !BASISD_SUPPORT_DXT1 || !BASISD_SUPPORT_DXT5A
+            BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: DXT1 and DXT5A unsupported\n");
 				return false;
-#endif
-#if !BASISD_SUPPORT_DXT5A
-            BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: DXT5A unsupported\n");
-				return false;
-#endif
+#else
 				assert(bytes_per_block_or_pixel == 16);
 
 				// First decode the alpha data 
@@ -10236,13 +10237,14 @@ namespace basist
 				}
 
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFBC5_RG:
 			{
 #if !BASISD_SUPPORT_DXT5A
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: DXT5A unsupported\n");
 				return false;
-#endif
+#else
 				assert(bytes_per_block_or_pixel == 16);
 
 				// Decode the R data (actually the green channel of the color data slice in the basis file)
@@ -10269,13 +10271,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to BC5 channel 0 failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFASTC_4x4_RGBA:
 			{
 #if !BASISD_SUPPORT_ASTC
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: ASTC unsupported\n");
 				return false;
-#endif
+#else
 				assert(bytes_per_block_or_pixel == 16);
 
 				if (basis_file_has_alpha_slices)
@@ -10298,13 +10301,14 @@ namespace basist
             }
 
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFATC_RGB:
 			{
 #if !BASISD_SUPPORT_ATC
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: ATC unsupported\n");
 				return false;
-#endif
+#else
 				uint32_t slice_index_to_decode = slice_index;
 				// If the caller wants us to transcode the mip level's alpha data, then use the next slice.
 				if ((basis_file_has_alpha_slices) && (transcode_alpha_data_to_opaque_formats))
@@ -10316,17 +10320,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to ATC_RGB failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFATC_RGBA:
 			{
 #if !BASISD_SUPPORT_ATC
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: ATC unsupported\n");
 				return false;
-#endif
-#if !BASISD_SUPPORT_DXT5A
-            BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: DXT5A unsupported\n");
-   			return false;
-#endif
+#else
 				assert(bytes_per_block_or_pixel == 16);
 
 				// First decode the alpha data 
@@ -10353,13 +10354,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to ATC A failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFPVRTC2_4_RGB:
 			{
 #if !BASISD_SUPPORT_PVRTC2
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: PVRTC2 unsupported\n");
 				return false;
-#endif
+#else
 				uint32_t slice_index_to_decode = slice_index;
 				// If the caller wants us to transcode the mip level's alpha data, then use the next slice.
 				if ((basis_file_has_alpha_slices) && (transcode_alpha_data_to_opaque_formats))
@@ -10371,13 +10373,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to cPVRTC2_4_RGB failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFPVRTC2_4_RGBA:
 			{
 #if !BASISD_SUPPORT_PVRTC2
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: PVRTC2 unsupported\n");
 				return false;
-#endif
+#else
 				if (basis_file_has_alpha_slices)
 				{
 					// First decode the alpha data to the output (we're using the output texture as a temp buffer here).
@@ -10401,6 +10404,7 @@ namespace basist
 				}
 
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFRGBA32:
 			{
@@ -10475,7 +10479,7 @@ namespace basist
 #if !BASISD_SUPPORT_FXT1
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: FXT1 unsupported\n");
 				return false;
-#endif
+#else
 				uint32_t slice_index_to_decode = slice_index;
 				// If the caller wants us to transcode the mip level's alpha data, then use the next slice.
 				if ((basis_file_has_alpha_slices) && (transcode_alpha_data_to_opaque_formats))
@@ -10487,13 +10491,14 @@ namespace basist
 					BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: transcode_slice() to FXT1_RGB failed\n");
 				}
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFETC2_EAC_R11:
 			{
 #if !BASISD_SUPPORT_ETC2_EAC_RG11
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: EAC_RG11 unsupported\n");
 				return false;
-#endif
+#else
 				uint32_t slice_index_to_decode = slice_index;
 				// If the caller wants us to transcode the mip level's alpha data, then use the next slice.
 				if ((basis_file_has_alpha_slices) && (transcode_alpha_data_to_opaque_formats))
@@ -10506,13 +10511,14 @@ namespace basist
 				}
 
 				break;
+#endif
 			}
 			case transcoder_texture_format::cTFETC2_EAC_RG11:
 			{
 #if !BASISD_SUPPORT_ETC2_EAC_RG11
             BASISU_DEVEL_ERROR("basisu_transcoder::transcode_image_level: EAC_RG11 unsupported\n");
 				return false;
-#endif
+#else
 				assert(bytes_per_block_or_pixel == 16);
 
 				if (basis_file_has_alpha_slices)
@@ -10541,6 +10547,7 @@ namespace basist
 				}
 
 				break;
+#endif
 			}
 			default:
 			{
