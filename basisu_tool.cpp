@@ -2816,9 +2816,62 @@ static int getMaxThreads() {
 	return threads;
 }
 
+struct etc_block_data {
+	etc_block_data() : data(0) {}
+	union {
+		uint8_t bytes[8];
+		struct {
+			int      cDiffR : 3;
+			unsigned colorR : 5;
+			int      cDiffG : 3;
+			unsigned colorG : 5;
+			int      cDiffB : 3;
+			unsigned colorB : 5;
+			unsigned flDiff : 1;
+			unsigned flFlip : 1;
+			unsigned cword1 : 3;
+			unsigned cword0 : 3;
+			uint32_t select;
+		};
+		uint64_t data;
+	};
+	bool isValidETC1S() const {
+		return flDiff && flFlip && cDiffR == 0 && cDiffG == 0 && cDiffB == 0 && cword0 == cword1;
+	}
+};
+
+struct repacked_endpoint {
+	repacked_endpoint() : data(0) {}
+	union {
+		uint8_t bytes[4];
+		struct {
+			/*
+			unsigned cword0 : 3;
+			unsigned colorR : 5;
+			unsigned empty0 : 3;
+			unsigned colorG : 5;
+			unsigned empty1 : 3;
+			unsigned colorB : 5;
+			unsigned unused : 8;
+			 */
+			unsigned colorR :  5;
+			unsigned colorG :  5;
+			unsigned colorB :  5;
+			unsigned cword0 :  3;
+			unsigned unused : 14;
+		} color;
+		struct {
+			unsigned colorR :  5;
+			unsigned cword0 :  3;
+			unsigned unused : 24;
+		} alpha;
+		uint32_t data;
+	};
+};
+
 int main(int /*argc*/, const char** /*argv*/) {
 	uint8_vec raw;
-	read_file_to_vec("juan-1024x1024.rgba.raw", raw);
+	read_file_to_vec("kodak-girl-512x512.rgba.raw", raw);
 
 	basis_compressor_params params;
 	basis_compressor comp;
@@ -2828,8 +2881,14 @@ int main(int /*argc*/, const char** /*argv*/) {
 	params.m_quality_level = 128;
 
 	params.m_source_images.resize(1);
-	params.m_source_images.back().init(reinterpret_cast<uint8_t*>(raw.data()), 1024, 1024, 4); // 3 will drop alpha
+	params.m_source_images.back().init(reinterpret_cast<uint8_t*>(raw.data()), 512, 512, 4);
 	comp.init(params);
+
+	size_t dEtc = sizeof(etc_block_data);
+	size_t rEnd = sizeof(repacked_endpoint);
+
+	assert(dEtc == 8);
+	assert(rEnd == 4);
 
 	if (comp.read_source_images()) {
 		if (comp.validate_texture_type_constraints()) {
@@ -2839,10 +2898,36 @@ int main(int /*argc*/, const char** /*argv*/) {
 				} else {
 					if (comp.process_frontend()) {
 						if (comp.extract_frontend_texture_data()) {
-							const gpu_image& img = comp.m_best_etc1s_images[(comp.m_frontend_output_textures.size() > 1) ? 1 : 0]; // m_frontend_output_textures
-							const uint64_t* data = img.get_ptr();
+							const std::vector<gpu_image>& imgs = comp.m_best_etc1s_images;
+							const gpu_image& img = imgs[(imgs.size() > 1) ? 1 : 0];
+							const etc_block_data* block = reinterpret_cast<const etc_block_data*>(img.get_ptr());
+							uint32_t const numBlocks = img.get_total_blocks();;
+							uint32_t const numBytes  = numBlocks * 7;
 
-							write_data_to_file("etc1s-dump.raw", data, img.get_size_in_bytes());
+							uint8_t* const out = new uint8_t[numBytes];
+							uint8_t* outDst = out;
+
+							for (uint32_t n = 0; n < img.get_total_blocks(); n++) {
+								if (block->isValidETC1S()) {
+									repacked_endpoint epoint;
+									epoint.color.colorR = block->colorR;
+									epoint.color.colorG = block->colorG;
+									epoint.color.colorB = block->colorB;
+									epoint.color.cword0 = block->cword0;
+									
+									memcpy(outDst + 0, &epoint, 3);
+									memcpy(outDst + 3, &block->select, 4);
+
+									outDst += 7;
+								} else {
+									return 0; // invalid block
+								}
+								block++;
+							}
+
+							write_data_to_file("etc1s-dump.raw", out, numBytes);
+							delete[] out;
+
 						}
 					}
 				}
