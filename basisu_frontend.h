@@ -116,7 +116,7 @@ namespace basisu
 
 		bool init(const params &p);
 
-		bool compress();
+		bool compress(bool const bailAfterEtc1);
 
 		const params &get_params() const { return m_params; }
 

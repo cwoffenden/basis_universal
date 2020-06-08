@@ -171,7 +171,7 @@ namespace basisu
 		return true;
 	}
 
-	bool basisu_frontend::compress()
+	bool basisu_frontend::compress(bool const bailAfterEtc1)
 	{
 		debug_printf("basisu_frontend::compress\n");
 
@@ -179,6 +179,9 @@ namespace basisu
 		m_total_pixels = m_total_blocks * cPixelBlockTotalPixels;
 
 		init_etc1_images();
+		if (bailAfterEtc1) {
+			return true;
+		}
 
 		init_endpoint_training_vectors();
 

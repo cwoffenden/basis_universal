@@ -459,7 +459,7 @@ namespace basisu
 	public:
 		bool read_source_images();
 		bool extract_source_blocks();
-		bool process_frontend();
+		bool process_frontend(bool const bailAfterEtc1 = false);
 		bool extract_frontend_texture_data();
 		bool process_backend();
 		bool create_basis_file_and_transcode();

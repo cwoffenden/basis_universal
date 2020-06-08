@@ -370,7 +370,7 @@ namespace basisu
 					return false;
 				}
 
-				printf("Read source image \"%s\", %ux%u\n", pSource_filename, file_image.get_width(), file_image.get_height());
+				debug_printf("Read source image \"%s\", %ux%u\n", pSource_filename, file_image.get_width(), file_image.get_height());
 
 				// Optionally load another image and put a grayscale version of it into the alpha channel.
 				if ((source_file_index < m_params.m_source_alpha_filenames.size()) && (m_params.m_source_alpha_filenames[source_file_index].size()))
@@ -385,7 +385,7 @@ namespace basisu
 						return false;
 					}
 
-					printf("Read source alpha image \"%s\", %ux%u\n", pSource_alpha_image, alpha_data.get_width(), alpha_data.get_height());
+					debug_printf("Read source alpha image \"%s\", %ux%u\n", pSource_alpha_image, alpha_data.get_width(), alpha_data.get_height());
 
 					alpha_data.crop(file_image.get_width(), file_image.get_height());
 
@@ -768,7 +768,7 @@ namespace basisu
 		return true;
 	}
 
-	bool basis_compressor::process_frontend()
+	bool basis_compressor::process_frontend(bool const bailAfterEtc1)
 	{
 		debug_printf("basis_compressor::process_frontend\n");
 						
@@ -958,7 +958,7 @@ namespace basisu
 			return false;
 		}
 
-		m_frontend.compress();
+		m_frontend.compress(bailAfterEtc1);
 
 		if (m_params.m_debug_images)
 		{
@@ -1221,7 +1221,7 @@ namespace basisu
 				return false;
 			}
 
-			printf("Wrote output .basis file \"%s\"\n", basis_filename.c_str());
+			debug_printf("Wrote output .basis file \"%s\"\n", basis_filename.c_str());
 		}
 		size_t comp_size = 0;
 		if ((m_params.m_compute_stats) && (m_params.m_uastc) && (comp_data.size()))
@@ -1231,7 +1231,7 @@ namespace basisu
 			void* pDecomp_data = tinfl_decompress_mem_to_heap(pComp_data, comp_size, &decomp_size, 0);
 			if ((decomp_size != comp_data.size()) || (memcmp(pDecomp_data, &comp_data[0], decomp_size) != 0))
 			{
-				printf("basis_compressor::create_basis_file_and_transcode:: miniz compression or decompression failed!\n");
+				debug_printf("basis_compressor::create_basis_file_and_transcode:: miniz compression or decompression failed!\n");
 				return false;
 			}
 			mz_free(pComp_data);
@@ -1257,7 +1257,7 @@ namespace basisu
 
 			if (m_params.m_compute_stats)
 			{
-				printf("Slice: %u\n", slice_index);
+				debug_printf("Slice: %u\n", slice_index);
 
 				image_stats &s = m_stats[slice_index];
 

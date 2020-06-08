@@ -50,6 +50,11 @@ typedef uint64_t deUint64;
 
 #define DE_ASSERT assert
 
+#ifdef _MSC_VER
+// basisu_astc::inBounds and basisu_astc::inRange aren't used without asserts
+#pragma warning (disable : 4505)
+#endif
+
 namespace basisu_astc
 {
 	static bool inBounds(int v, int l, int h)
