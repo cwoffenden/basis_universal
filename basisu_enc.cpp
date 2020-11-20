@@ -1543,7 +1543,8 @@ namespace basisu
 		WORD const numGroups = GetActiveProcessorGroupCount();
 		if (numGroups > 1) {
 			GROUP_AFFINITY affinity;
-			for (size_t index = 0; index < threads;) {
+			size_t index = 0;
+			while (index < threads) {
 				for (WORD group = 0; group < numGroups; ++group) {
 					if (DWORD  groupCpus = GetMaximumProcessorCount(group)) {
 						for (; groupCpus > 0; --groupCpus) {
