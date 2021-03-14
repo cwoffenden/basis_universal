@@ -33,7 +33,7 @@
 #endif
 
 #define MINIZ_HEADER_FILE_ONLY
-#include "encoder/basisu_miniz.h
+#include "encoder/basisu_miniz.h"
 
 // Set BASISU_CATCH_EXCEPTIONS if you want exceptions to crash the app, otherwise main() catches them.
 #define BASISU_CATCH_EXCEPTIONS 0
