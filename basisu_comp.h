@@ -451,10 +451,11 @@ namespace basisu
 		std::vector<image> m_decoded_output_textures_unpacked_bc7;
 
 		uint8_vec m_output_basis_file;
-		
+	public:
 		std::vector<gpu_image> m_uastc_slice_textures;
 		basisu_backend_output m_uastc_backend_output;
 
+	private:
 		bool m_any_source_image_has_alpha;
 	public:
 		bool read_source_images();

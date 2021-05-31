@@ -2871,30 +2871,37 @@ struct repacked_endpoint {
 
 int main(int /*argc*/, const char** /*argv*/) {
 	uint8_vec raw;
-	read_file_to_vec("kodak-girl-512x512.rgba.raw", raw);
+	read_file_to_vec("testcard-256x256.rgba.raw", raw);
 
+	basisu::basisu_encoder_init();
 	basis_compressor_params params;
 	basis_compressor comp;
 
 	job_pool pool(getMaxThreads());
 	params.m_pJob_pool = &pool;
 	params.m_quality_level = 128;
+	params.m_uastc = true; // <--- Switch this
 
 	params.m_source_images.resize(1);
-	params.m_source_images.back().init(reinterpret_cast<uint8_t*>(raw.data()), 512, 512, 4);
+	params.m_source_images.back().init(reinterpret_cast<uint8_t*>(raw.data()), 256, 256, 4);
 	comp.init(params);
 
+	/*
 	size_t dEtc = sizeof(etc_block_data);
 	size_t rEnd = sizeof(repacked_endpoint);
 
 	assert(dEtc == 8);
 	assert(rEnd == 4);
-
+	 */
 	if (comp.read_source_images()) {
 		if (comp.validate_texture_type_constraints()) {
 			if (comp.extract_source_blocks()) {
 				if (params.m_uastc) {
-
+					if (comp.encode_slices_to_uastc() == basis_compressor::cECSuccess) {
+						if (comp.m_uastc_slice_textures.size()) {
+							comp.m_uastc_backend_output;
+						}
+					}
 				} else {
 					if (comp.process_frontend()) {
 						if (comp.extract_frontend_texture_data()) {
